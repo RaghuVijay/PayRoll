@@ -1,5 +1,5 @@
 <div class="container mt-4">
-  <h2 class="mb-4 text-primary">Employee List</h2>
+  <h2 class="mb-4 text-primary">Payslip List</h2>
 
   <!-- Items Per Page Dropdown and Create Button -->
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -38,17 +38,17 @@
           <th>Employee Name</th>
           <th>Employee Role</th>
           <th>Employer Name</th>
-          <th>Payslip Month</th>
+          <th>Pay Period</th>
           <th>Action</th>
         </tr>
-        <tr>
+        <!-- <tr>
           <th></th>
           <th>
             <input
               type="text"
               class="form-control"
               placeholder="Search ID"
-              (input)="onFilter($event, 'id')"
+              (input)="onFilter($event, 'profile_id')"
             />
           </th>
           <th>
@@ -56,7 +56,7 @@
               type="text"
               class="form-control"
               placeholder="Search Name"
-              (input)="onFilter($event, 'name')"
+              (input)="onFilter($event, 'profile.name')"
             />
           </th>
           <th>
@@ -64,7 +64,7 @@
               type="text"
               class="form-control"
               placeholder="Search Role"
-              (input)="onFilter($event, 'role')"
+              (input)="onFilter($event, 'profile.role')"
             />
           </th>
           <th>
@@ -72,31 +72,31 @@
               type="text"
               class="form-control"
               placeholder="Search Employer"
-              (input)="onFilter($event, 'employer')"
+              (input)="onFilter($event, 'profile.employer')"
             />
           </th>
           <th></th>
           <th></th>
-        </tr>
+        </tr> -->
       </thead>
       <tbody>
-        <tr *ngFor="let employee of paginatedEmployees">
+        <tr *ngFor="let payslip of paginatedPayslips">
           <td>
             <div
               class="profile-avatar"
               [ngClass]="{
-                male: employee.gender === 'male',
-                female: employee.gender === 'female'
+                male: payslip.profile.gender === 'male',
+                female: payslip.profile.gender === 'female'
               }"
             >
-              {{ getAvatarInitials(employee.name) }}
+              {{ getAvatarInitials(payslip.profile.name) }}
             </div>
           </td>
-          <td>{{ employee.id }}</td>
-          <td>{{ employee.name }}</td>
-          <td>{{ employee.role }}</td>
-          <td>{{ employee.employer }}</td>
-          <td>{{ employee.payMonth }}</td>
+          <td>{{ payslip.profile_id }}</td>
+          <td>{{ payslip.profile.name }}</td>
+          <td>{{ payslip.profile.role }}</td>
+          <td>{{ payslip.profile.employer }}</td>
+          <td>{{ payslip.pay_period }}</td>
           <td>
             <div ngbDropdown class="d-inline-block">
               <button
@@ -107,15 +107,15 @@
               </button>
               <div ngbDropdownMenu>
                 <!-- View Button -->
-                <button ngbDropdownItem (click)="onView(employee)">
+                <button ngbDropdownItem (click)="onView(payslip)">
                   <i class="bi bi-eye me-2"></i>View
                 </button>
                 <!-- Edit Button -->
-                <button ngbDropdownItem (click)="onEdit(employee)">
+                <button ngbDropdownItem (click)="onEdit(payslip)">
                   <i class="bi bi-pencil me-2"></i>Edit
                 </button>
                 <!-- Delete Button -->
-                <button ngbDropdownItem (click)="onDelete(employee)">
+                <button ngbDropdownItem (click)="onDelete(payslip)">
                   <i class="bi bi-trash me-2"></i>Delete
                 </button>
               </div>
@@ -127,7 +127,7 @@
   </div>
 
   <!-- Pagination -->
-  <nav aria-label="Page navigation" *ngIf="filteredEmployees.length > pageSize">
+  <nav aria-label="Page navigation" *ngIf="filteredPayslips.length > pageSize">
     <ul class="pagination justify-content-end">
       <li class="page-item" [ngClass]="{ disabled: currentPage === 1 }">
         <a class="page-link" (click)="onPageChange(currentPage - 1)"

@@ -1,17 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { RouterModule, Router } from '@angular/router';
-
-interface Employee {
-  id: number;
-  name: string;
-  role: string;
-  employer: string;
-  payMonth: string;
-  gender: 'male' | 'female';
-}
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { List } from '../../models/list.model';
+import { DeleteService } from '../../services/delete.service';
 
 @Component({
   selector: 'app-list',
@@ -20,106 +13,32 @@ interface Employee {
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss'],
 })
-export class ListComponent {
-  constructor(private route: Router) {}
-  employees: Employee[] = [
-    {
-      id: 1,
-      name: 'John Doe',
-      role: 'Developer',
-      employer: 'Tech Corp',
-      payMonth: 'january',
-      gender: 'male',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      role: 'Designer',
-      employer: 'Creative Inc',
-      payMonth: 'january',
-      gender: 'female',
-    },
-    {
-      id: 3,
-      name: 'Mike Johnson',
-      role: 'Manager',
-      employer: 'Business Solutions',
-      payMonth: 'january',
-      gender: 'male',
-    },
-    {
-      id: 4,
-      name: 'Sarah Lee',
-      role: 'Analyst',
-      employer: 'Data Works',
-      payMonth: 'january',
-      gender: 'female',
-    },
-    {
-      id: 5,
-      name: 'Chris Brown',
-      role: 'Tester',
-      employer: 'Quality Assurance',
-      payMonth: 'january',
-      gender: 'male',
-    },
-    {
-      id: 6,
-      name: 'Emily Davis',
-      role: 'Designer',
-      employer: 'Creative Inc',
-      payMonth: 'january',
-      gender: 'female',
-    },
-    {
-      id: 7,
-      name: 'David Wilson',
-      role: 'Developer',
-      employer: 'Tech Corp',
-      payMonth: 'january',
-      gender: 'male',
-    },
-    {
-      id: 8,
-      name: 'Emma Martinez',
-      role: 'Analyst',
-      employer: 'Data Works',
-      payMonth: 'january',
-      gender: 'female',
-    },
-    {
-      id: 9,
-      name: 'James Anderson',
-      role: 'Manager',
-      employer: 'Business Solutions',
-      payMonth: 'january',
-      gender: 'male',
-    },
-    {
-      id: 10,
-      name: 'Olivia Taylor',
-      role: 'Tester',
-      employer: 'Quality Assurance',
-      payMonth: 'january',
-      gender: 'female',
-    },
-  ];
+export class ListComponent implements OnInit {
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private del: DeleteService
+  ) {}
 
-  filteredEmployees: Employee[] = this.employees;
-  paginatedEmployees: Employee[] = [];
+  payslips: List[] = []; // Replace employees with payslips
+  filteredPayslips: List[] = [];
+  paginatedPayslips: List[] = [];
   currentPage = 1;
   pageSize = 5; // Default items per page
   pageSizeOptions = [5, 10, 20, 50]; // Dropdown options for items per page
 
   ngOnInit() {
+    // Access the resolved data from the route
+    this.payslips = this.route.snapshot.data['payslips'];
+    this.filteredPayslips = this.payslips; // Initialize filtered data
     this.updatePagination();
   }
 
-  onFilter(event: Event, field: keyof Employee) {
+  onFilter(event: Event, field: keyof List) {
     const input = event.target as HTMLInputElement;
     const value = input.value.toLowerCase();
-    this.filteredEmployees = this.employees.filter((employee) =>
-      String(employee[field]).toLowerCase().includes(value)
+    this.filteredPayslips = this.payslips.filter((payslip) =>
+      String(payslip[field]).toLowerCase().includes(value)
     );
     this.currentPage = 1; // Reset to first page after filtering
     this.updatePagination();
@@ -127,28 +46,28 @@ export class ListComponent {
 
   onCreate() {
     console.log('Create button clicked');
-    this.route.navigate(['payslip', 'create'], {
+    this.router.navigate(['payslip', 'create'], {
       queryParams: { query: 'create' },
     });
   }
 
-  onView(employee: Employee) {
-    console.log('View:', employee);
-    this.route.navigate(['payslip', 'view'], {
-      queryParams: { empId: employee.id },
+  onView(payslip: List) {
+    console.log('View:', payslip);
+    this.router.navigate(['payslip', 'view'], {
+      queryParams: { user: payslip.profile_id },
     });
   }
 
-  onEdit(employee: Employee) {
-    console.log('Edit:', employee);
-    this.route.navigate(['payslip', 'edit'], {
-      queryParams: { empId: employee.id },
+  onEdit(payslip: List) {
+    console.log('Edit:', payslip);
+    this.router.navigate(['payslip', 'edit'], {
+      queryParams: { user: payslip.profile_id },
     });
   }
 
-  onDelete(employee: Employee) {
-    console.log('Delete:', employee);
-    // Add delete logic here
+  onDelete(payslip: List) {
+    console.log('Delete:', payslip);
+    this.del.deletePayslips(payslip.profile_id).subscribe((res: any)=> window.location.reload())
   }
 
   getAvatarInitials(name: string): string {
@@ -175,14 +94,14 @@ export class ListComponent {
   updatePagination() {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.paginatedEmployees = this.filteredEmployees.slice(
+    this.paginatedPayslips = this.filteredPayslips.slice(
       startIndex,
       endIndex
     );
   }
 
   get totalPages(): number {
-    return Math.ceil(this.filteredEmployees.length / this.pageSize);
+    return Math.ceil(this.filteredPayslips.length / this.pageSize);
   }
 
   getPages(): number[] {
